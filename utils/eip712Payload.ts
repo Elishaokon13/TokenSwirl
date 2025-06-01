@@ -1,0 +1,30 @@
+export function getEIP712Payload({
+  tokens,
+  amounts,
+  deadline,
+  chainId,
+  verifyingContract,
+}: { tokens: string[]; amounts: bigint[]; deadline: bigint; chainId: number; verifyingContract: string }) {
+    return {
+      domain: {
+        name: "BatchSwapToUSDC",
+        version: "1",
+        chainId,
+        verifyingContract,
+      },
+      types: {
+        BatchSwap: [
+          { name: "tokens", type: "address[]" },
+          { name: "amounts", type: "uint256[]" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      primaryType: "BatchSwap",
+      message: {
+        tokens,
+        amounts,
+        deadline,
+      },
+    };
+  }
+  

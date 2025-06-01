@@ -1,11 +1,13 @@
-// components/TokenList.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useWallets } from '@privy-io/react-auth';
 import { fetchAlchemyTokenBalances } from '@/hooks/useAlchemyTokens';
+import { useEIP7702Swap } from '@/hooks/useEIP7702Swap';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import SwapModal from '@/components/SwapModal';
+import { toast } from 'sonner';
 
 export default function TokenList() {
   const { wallets } = useWallets();
@@ -14,7 +16,12 @@ export default function TokenList() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [swapStatus, setSwapStatus] = useState('');
+  const [isSwapping, setIsSwapping] = useState(false);
   const itemsPerPage = 5;
+
+  const { swapToUSDC } = useEIP7702Swap();
 
   useEffect(() => {
     if (address) {
@@ -53,7 +60,28 @@ export default function TokenList() {
     });
   };
 
-  // Pagination logic
+  const handleBatchSwap = async () => {
+    try {
+      const tokensToSwap = tokens.filter((token) => selected.has(token.address));
+      const inputs = tokensToSwap.map((token) => ({
+        tokenIn: token.address as `0x${string}`,
+        amountIn: BigInt(Math.floor(token.balance * 10 ** token.decimals)),
+      }));
+
+      setSwapStatus('⏳ Preparing batch swap via EIP-7702');
+      setModalOpen(true);
+      setIsSwapping(true);
+
+      const txHash = await swapToUSDC(inputs);
+
+      setSwapStatus(`✅ Transaction sent:\nhttps://basescan.org/tx/${txHash}`);
+    } catch (error: any) {
+      setSwapStatus(`❌ Swap failed:\n${error.message}`);
+    } finally {
+      setIsSwapping(false);
+    }
+  };
+
   const totalPages = Math.ceil(tokens.length / itemsPerPage);
   const paginatedTokens = tokens.slice(
     (currentPage - 1) * itemsPerPage,
@@ -67,56 +95,30 @@ export default function TokenList() {
   return (
     <div className="w-full max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-        <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700 sm:px-6">
+        <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700 sm:px-6 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Your ERC20 Tokens (Base Network)
           </h2>
+          {selected.size > 0 && (
+            <button
+              onClick={handleBatchSwap}
+              disabled={isSwapping}
+              className={`px-4 py-2 text-sm rounded-lg font-medium ${
+                isSwapping
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              {isSwapping ? 'Swapping...' : 'Swap Selected to USDC'}
+            </button>
+          )}
         </div>
 
         {isLoading ? (
-          <div className="p-4 sm:p-6">
-            <table className="w-full min-w-[320px]">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-gray-700">
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sm:px-6">
-                    <div className="h-4 w-4 bg-gray-200 dark:bg-gray-600 rounded" />
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sm:px-6">
-                    Token
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sm:px-6">
-                    Symbol
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sm:px-6">
-                    Balance
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {[...Array(itemsPerPage)].map((_, index) => (
-                  <tr key={index} className="animate-pulse">
-                    <td className="px-3 py-4 whitespace-nowrap sm:px-6">
-                      <div className="h-4 w-4 bg-gray-200 dark:bg-gray-600 rounded" />
-                    </td>
-                    <td className="px-3 py-4 whitespace-nowrap sm:px-6">
-                      <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full" />
-                    </td>
-                    <td className="px-3 py-4 whitespace-nowrap sm:px-6">
-                      <div className="h-4 w-20 bg-gray-200 dark:bg-gray-600 rounded" />
-                    </td>
-                    <td className="px-3 py-4 whitespace-nowrap sm:px-6">
-                      <div className="h-4 w-16 bg-gray-200 dark:bg-gray-600 rounded" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <div className="p-4 text-center text-gray-500 dark:text-gray-400">Loading tokens...</div>
         ) : tokens.length === 0 ? (
-          <div className="p-4 text-center sm:p-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              No ERC20 tokens found on Base Network
-            </p>
+          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+            No ERC20 tokens found on Base Network
           </div>
         ) : (
           <>
@@ -217,6 +219,12 @@ export default function TokenList() {
           </>
         )}
       </div>
+
+      <SwapModal
+        visible={modalOpen}
+        status={swapStatus}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }
