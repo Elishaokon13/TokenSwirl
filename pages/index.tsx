@@ -1,11 +1,13 @@
-import ConnectWallet from '@/components/ConnectWallet';
+import Navbar from '@/components/Navbar';
 import TokenList from '@/components/TokenList';
 
 export default function Home() {
   return (
-    <main className="p-6">
-      <ConnectWallet />
-      <TokenList />
-    </main>
+    <>
+      <Navbar />
+      <main className="p-6">
+        <TokenList />
+      </main>
+    </>
   );
 }

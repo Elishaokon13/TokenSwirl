@@ -68,7 +68,9 @@ export default function TokenList() {
     <div className="w-full max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700 sm:px-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Tokens</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Your ERC20 Tokens (Base Network)
+          </h2>
         </div>
 
         {isLoading ? (
@@ -112,7 +114,9 @@ export default function TokenList() {
           </div>
         ) : tokens.length === 0 ? (
           <div className="p-4 text-center sm:p-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400">No tokens found</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No ERC20 tokens found on Base Network
+            </p>
           </div>
         ) : (
           <>
