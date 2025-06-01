@@ -1,8 +1,7 @@
-// hooks/useEIP7702Swap.ts
 import { useCallback } from 'react';
 import { useWallets } from '@privy-io/react-auth';
 import { getEIP712Payload } from '@/utils/eip712Payload';
-import { abi as contractAbi } from '@/contracts/BatchSwapToUSDC.json';
+import contractAbi from '@/contracts/BatchSwapToUSDC.json';
 import { base } from 'viem/chains';
 import {
   createWalletClient,
@@ -10,10 +9,9 @@ import {
   createPublicClient,
   http,
   decodeErrorResult,
-  waitForTransactionReceipt,
   type WalletClient,
-  type Account,
   type Hash,
+  type Abi,
 } from 'viem';
 import { toast } from 'sonner';
 
@@ -30,7 +28,7 @@ interface ContractError extends Error {
 
 export function useEIP7702Swap() {
   const { wallets } = useWallets();
-  const privyWallet = wallets[0];
+  const privyWallet = wallets.find(wallet => wallet.walletClientType === 'privy');
   const address = privyWallet?.address;
 
   const swapToUSDC = useCallback(
@@ -44,14 +42,21 @@ export function useEIP7702Swap() {
       }
 
       const tokens = inputs.map((input) => input.tokenIn);
-      const amounts = inputs.map((input) => input.amountIn.toString());
-      const deadline = Math.floor(Date.now() / 1000) + 3600;
+      const amounts = inputs.map((input) => input.amountIn);
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+      const chainId = BigInt(base.id);
 
       try {
-        const walletClient: WalletClient = await privyWallet.getWalletClient();
-        
-        // Extract account directly from wallet client
-        const account: Account = walletClient.account!;
+        const provider = await privyWallet.getEthereumProvider();
+
+        const walletClient: WalletClient = createWalletClient({
+          chain: base,
+          transport: custom(provider),
+        });
+
+        if (!walletClient.account) {
+          throw new Error('No account found in wallet client');
+        }
 
         const payload = getEIP712Payload({
           tokens,
@@ -61,12 +66,12 @@ export function useEIP7702Swap() {
           verifyingContract: CONTRACT_ADDRESS,
         });
 
-        // Use the wallet client directly for signing and transactions
         const signature = await walletClient.signTypedData({
-          domain: payload.domain,
-          types: payload.types,
-          primaryType: payload.primaryType,
-          message: payload.message,
+          account: walletClient.account,
+          domain: payload.domain as any,
+          types: payload.types as any,
+          primaryType: payload.primaryType as "BatchSwap",
+          message: payload.message as any,
         });
 
         const publicClient = createPublicClient({
@@ -74,28 +79,29 @@ export function useEIP7702Swap() {
           transport: http(),
         });
 
-        // Use wallet client for transaction
-        const hash = await walletClient.writeContract({
+        const txHash = await walletClient.writeContract({
+          chain: base,
+          account: walletClient.account,
           address: CONTRACT_ADDRESS,
-          abi: contractAbi,
+          abi: contractAbi as Abi,
           functionName: 'batchSwapToUSDC',
           args: [tokens, amounts, deadline, signature],
         });
 
         toast.loading('Transaction pending...', { id: 'tx' });
 
-        await waitForTransactionReceipt(publicClient, { hash });
+        await publicClient.waitForTransactionReceipt({ hash: txHash });
 
         toast.success('Swap confirmed!', { id: 'tx' });
-        return hash;
+        return txHash;
       } catch (error) {
         const contractError = error as ContractError;
         
         if (contractError?.data) {
           try {
             const decoded = decodeErrorResult({
-              abi: contractAbi,
-              data: contractError.data,
+              abi: contractAbi as Abi,
+              data: contractError.data as `0x${string}`,
             });
             const errorMessage = `Swap failed: ${decoded.errorName}`;
             toast.error(errorMessage);

@@ -1,40 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# TokenSwirl
+
+A decentralized application (dApp) built with Next.js, showcasing wallet connection, token balance fetching, and EIP-7702 batch swap transactions on the Base network.
+
+## Features
+
+*   **Wallet Connection:** Seamlessly connect wallets using Privy.
+*   **Token Balances:** Fetch and display ERC20 token balances using Viem and Alchemy SDK.
+*   **EIP-7702 Batch Swap:** Execute batch swap transactions via a smart contract using EIP-7702 signatures.
+*   **User Interface:** Built with React and styled using Shadcn UI components.
+*   **Notifications:** Transaction feedback using Sonner toasts.
+*   **Theme Toggle:** Light and dark mode support.
+
+## Technologies Used
+
+*   [Next.js](https://nextjs.org/)
+*   [React](https://react.dev/)
+*   [TypeScript](https://www.typescriptlang.org/)
+*   [Privy](https://privy.io/)
+*   [Wagmi](https://wagmi.sh/)
+*   [Viem](https://viem.sh/)
+*   [Alchemy SDK](https://docs.alchemy.com/reference/alchemy-sdk)
+*   [Shadcn UI](https://ui.shadcn.com/)
+*   [Sonner](https://sonner.emilkowal.ski/)
+*   [Headless UI](https://headlessui.com/)
+*   [Lucide React](https://lucide.dev/guide/packages/lucide-react)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+*   Node.js (v18 or later)
+*   Yarn or npm
+*   Git
+*   An [Alchemy](https://www.alchemy.com/) account and API key (for fetching token balances).
+*   A [Privy](https://privy.io/) account and App ID (for wallet authentication).
+*   A deployed instance of the `BatchSwapToUSDC` smart contract on the Base network (or your target network).
+
+### Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd TokenSwirl
+    ```
+2.  Install dependencies:
+    ```bash
+    yarn install
+    # or
+    npm install
+    ```
+3.  Add Shadcn UI components (if not already added):
+    ```bash
+    npx shadcn-ui@latest add button
+    npx shadcn-ui@latest add card
+    # ... add any other used components like input, label, etc.
+    ```
+    Follow the prompts to configure Shadcn UI for your project.
+
+### Configuration
+
+1.  Create a `.env.local` file in the root of your project based on the `.env.example` (if available) or manually add the following variables:
+
+    ```env
+    NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+    NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key
+    ```
+    Replace `your_privy_app_id` and `your_alchemy_api_key` with your actual credentials.
+
+2.  Update the smart contract address:
+
+    Edit the `CONTRACT_ADDRESS` constant in `hooks/useEIP7702Swap.ts` and `hooks/useBatchSwap.ts` with the address of your deployed `BatchSwapToUSDC` contract.
+
+    ```typescript
+    // hooks/useEIP7702Swap.ts and hooks/useBatchSwap.ts
+    const CONTRACT_ADDRESS = "0xYourDeployedContractAddress" as const; // Replace with your contract address
+    ```
+
+3.  Ensure the contract ABI is in place:
+
+    Make sure the compiled JSON ABI of your `BatchSwapToUSDC` contract is located at `contracts/BatchSwapToUSDC.json`. This file should contain the JSON array representing the ABI.
+
+### Running the Project
+
+To run the development server:
 
 ```bash
-npm run dev
-# or
 yarn dev
 # or
-pnpm dev
-# or
-bun dev
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+(Describe how to use the application, e.g., Connect Wallet button, Batch Swap form, etc.)
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+*   `components/`: Reusable UI components (e.g., WalletDropdown, BatchSwapForm).
+*   `hooks/`: Custom React hooks for logic (e.g., useWallets, useTokenBalances, useEIP7702Swap).
+*   `lib/`: Utility functions or configurations (e.g., wagmi setup, Alchemy client).
+*   `pages/`: Next.js pages.
+*   `utils/`: Helper functions (e.g., EIP-712 payload generation).
+*   `contracts/`: Contract ABIs (e.g., BatchSwapToUSDC.json).
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
+(Specify your project's license, e.g., MIT)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+---
+**Note:** This README assumes a basic understanding of web development, React, Next.js, and interacting with smart contracts on EVM chains. Replace placeholder content like `<repository-url>` and instructions specific to your contract deployment process.
