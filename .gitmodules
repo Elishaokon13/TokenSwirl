@@ -7,3 +7,6 @@
 [submodule "token-swirl/contracts/contracts/lib/v4-core"]
 	path = token-swirl/contracts/contracts/lib/v4-core
 	url = https://github.com/Uniswap/v4-core
+[submodule "token-swirl/contracts/lib/v4-core"]
+	path = token-swirl/contracts/lib/v4-core
+	url = https://github.com/uniswap/v4-core
