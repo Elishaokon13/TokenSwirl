@@ -105,9 +105,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 *   `utils/`: Helper functions (e.g., EIP-712 payload generation).
 *   `contracts/`: Contract ABIs (e.g., BatchSwapToUSDC.json).
 
-## License
-
-(Specify your project's license, e.g., MIT)
-
----
-**Note:** This README assumes a basic understanding of web development, React, Next.js, and interacting with smart contracts on EVM chains. Replace placeholder content like `<repository-url>` and instructions specific to your contract deployment process.
