@@ -46,13 +46,13 @@ Each task should be small and verifiable. Success criteria are defined for each.
     *   *Success Criteria*: Documentation is provided for setting up and running the project.
 
 ## Project Status Board
-- [ ] Task 1: Project Setup
-- [ ] Task 2: Privy Wallet Connection
-- [ ] Task 3: Backend API Routes
-- [ ] Task 4: Alchemy Token Fetching
-- [ ] Task 5: Filter Tokens and Get 0x Quotes
-- [ ] Task 6: Display Token Table
-- [ ] Task 7: Hardhat/Foundry Setup
+- [x] Task 1: Project Setup
+- [x] Task 2: Privy Wallet Connection
+- [x] Task 3: Backend API Routes (Basic routes created)
+- [x] Task 4: Alchemy Token Fetching (Basic fetching implemented)
+- [x] Task 5: Filter Tokens and Get 0x Quotes (Fetching and basic filtering implemented)
+- [x] Task 6: Display Token Table (HTML table with Tailwind styling implemented)
+- [x] Task 7: Hardhat/Foundry Setup (Foundry initialized)
 - [ ] Task 8: Uniswap V4 Hook Contract
 - [ ] Task 9: Deploy Hook Contract
 - [ ] Task 10: Uniswap V4 SDK Integration
@@ -63,7 +63,27 @@ Each task should be small and verifiable. Success criteria are defined for each.
 - [ ] Task 15: README and Environment File
 
 ## Current Status / Progress Tracking
+- Completed: Initial Next.js project creation with TypeScript and TailwindCSS (`token-swirl` directory).
+- Completed: Installation of core dependencies: `@privy-io/react-auth`, `viem`, `axios`.
+- Completed: Verification of basic TailwindCSS styling.
+- Completed: Added `PrivyProvider` to `layout.tsx`.
+- Completed: Added `WalletConnect` component to `page.tsx` using `usePrivy`.
+- Pending: Integration of Aceternity UI components (will be handled during UI implementation tasks).
+- Pending: Testing the wallet connection functionality.
+
+Completed Task 3: Backend API Routes (Alchemy and 0x routes created).
+Completed Task 4: Alchemy Token Fetching (Added logic to fetch token balances and metadata).
+Completed Task 5: Filter Tokens and Get 0x Quotes (Added logic to fetch 0x quotes and include USDC value).
+Completed Task 6: Display Token Table (Added HTML table with Tailwind styling to display token data).
+Completed Task 7: Hardhat/Foundry Setup (Foundry project initialized in the contracts directory).
+Starting Task 8: Uniswap V4 Hook Contract.
 
 ## Executor's Feedback or Assistance Requests
+- Please add your Privy App ID to a `.env.local` file in the `token-swirl` directory: `NEXT_PUBLIC_PRIVY_APP_ID='your_privy_app_id'`.
+- Please add your Alchemy and 0x API keys to your `.env.local` file in the `token-swirl` directory:
+`ALCHEMY_API_KEY='your_alchemy_api_key'`
+`ZERX_API_KEY='your_0x_api_key'`
+(Ensure you use the correct environment variable name for your 0x API key if it differs from ZERX_API_KEY).
+We are now ready to begin writing the Solidity smart contract for the Uniswap V4 hook.
 
 ## Lessons 
